@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#201622">
+<title>8+9 女僕咖啡廳｜Prototype 0.2</title>
+<style>
+:root{color-scheme:dark;--bg:#201622;--card:#382638;--accent:#f18caf;--accent2:#ffd4df;--ink:#fff5f7;--muted:#d5b9c8;--stroke:#6b4c65;--gold:#ffe5a0}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#101017;color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-tap-highlight-color:transparent}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#game{position:relative;max-width:440px;height:100dvh;min-height:min(600px,100dvh);max-height:980px;overflow:hidden;margin:auto;background:linear-gradient(160deg,#42273f 0%,#261929 52%,#1c1725 100%);display:flex;flex-direction:column;border-inline:1px solid #604358;box-shadow:0 0 35px #0008}
+.header{padding:10px 16px 8px;flex:none;z-index:2;background:linear-gradient(#2d1e30ea,#2d1e30b0);border-bottom:1px solid #60465d}
+.brandline{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-size:13px;letter-spacing:.14em;font-weight:900;color:#ffc4d8}.tag{font-size:10px;padding:3px 7px;border:1px solid #846178;border-radius:20px;color:#efc3d6}
+.finance{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.finance>div{background:#4c3048b9;padding:8px 11px;border-radius:11px;border:1px solid #6c4b67}
+.small{font-size:11px;color:#e3bed0}.big{font-size:clamp(18px,5vw,23px);font-weight:900;color:#fff8f7;white-space:nowrap}.persec{font-size:18px;color:#b8f1cd;font-weight:900}
+.stage{position:relative;flex:1 1 40%;min-height:180px;overflow:hidden;touch-action:manipulation;user-select:none;cursor:pointer;outline-offset:-5px;background:radial-gradient(ellipse at 50% 78%,#bd61775c,transparent 55%),repeating-linear-gradient(90deg,transparent 0 52px,#ffffff05 53px 54px)}
+/* 較高的角色在畫面裡以一致高度顯示；舞台仍可在任何位置點擊 */
+.stage:active .portrait{filter:drop-shadow(0 8px 14px #130d19ad) brightness(1.05)}
+.stage:focus-visible{outline:3px solid #fff}.window{position:absolute;top:11%;left:11%;right:11%;height:57%;border-radius:130px 130px 18px 18px;border:10px solid #714657;background:linear-gradient(135deg,#a65e8f50,#30263c 60%);box-shadow:inset 0 0 0 2px #c58eae66,0 7px 27px #180b1a55}.window:after{content:"";position:absolute;width:2px;top:0;bottom:0;left:50%;background:#a77996}
+.statusbar{position:absolute;top:9px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;z-index:4;gap:7px}.statuspill{padding:6px 10px;background:#271922db;border:1px solid #91627e;border-radius:100px;color:#ffe3eb;font-weight:800;font-size:12px}.minipill{background:#271922c7;border-radius:100px;padding:6px 9px;color:#ffe7d0;font-size:11px}
+.portrait{height:99%;max-width:98%;width:auto;position:absolute;left:50%;bottom:-3%;transform:translateX(-50%);z-index:2;object-fit:contain;object-position:bottom;pointer-events:none;filter:drop-shadow(0 8px 14px #130d19ad);transition:opacity .12s ease}.portrait.pulse{animation:boop .15s ease}
+@keyframes boop{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}100%{transform:translateX(-50%) scale(1)}}
+.fallback{position:absolute;inset:0;z-index:2;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:8px;pointer-events:none}.fallback-emoji{font-size:100px;filter:drop-shadow(0 4px 10px #0009)}.fallback-name{padding:7px 13px;background:#392637ee;border-radius:99px;font-weight:800}.fallback-hint{max-width:250px;text-align:center;line-height:1.5;color:#f0dce3;font-size:12px}
+.speech{position:absolute;top:19%;right:10px;z-index:3;padding:9px 11px;max-width:46%;border:2px solid #f7afc4;border-radius:16px 16px 4px 16px;background:#fff2f8;box-shadow:0 3px 11px #0005;color:#5c3046;font-weight:800;font-size:13px;line-height:1.35;text-align:center;pointer-events:none}
+.stagehelp{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:5;padding:6px 14px;border-radius:100px;background:#21151bc9;border:1px solid #ac758c;font-size:12px;color:#ffe8ee;white-space:nowrap;pointer-events:none}
+.float-text{position:absolute;z-index:7;color:#fff8c7;font-size:20px;font-weight:1000;text-shadow:0 1px 8px #582d48;pointer-events:none;animation:floatUp .8s forwards}@keyframes floatUp{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-58px) scale(1.06)}}
+.combo{flex:none;padding:10px 14px;background:#312032;z-index:2;border-top:1px solid #62445a;border-bottom:1px solid #62445a}.combotop{display:flex;justify-content:space-between;align-items:center;font-weight:850;font-size:12px}.combotop strong{font-size:13px;color:#ffdfae}.meter{height:13px;background:#170f1c;border-radius:100px;margin:7px 0 5px;overflow:hidden;border:1px solid #86607a}.meterfill{height:100%;width:0;background:linear-gradient(90deg,#ffb6cf,#f17c94,#ffc589);border-radius:100px;transition:width .08s linear}.combofoot{font-size:11px;color:#dbc2cf;display:flex;justify-content:space-between;gap:10px}
+.shop{flex:0 1 32%;min-height:145px;display:flex;flex-direction:column;overflow:hidden;background:#291d2d}.shophead{flex:none;padding:9px 14px 6px;display:flex;align-items:center;justify-content:space-between;gap:8px}.shophead h2{font-size:15px;margin:0}.tinybutton{background:#4d354b;color:#ffe8f0;border:1px solid #8b617e;border-radius:8px;padding:5px 9px;font-size:11px}
+.upgrades{overflow:auto;overscroll-behavior:contain;padding:0 10px 12px;scrollbar-color:#825a74 transparent}.upgrade{width:100%;text-align:left;color:#fff8fc;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0;padding:9px 10px;background:#483147;border:1px solid #78526d;border-radius:12px}.upgrade:disabled{opacity:.59;cursor:not-allowed}.upgrade:active:not(:disabled){transform:scale(.99)}.upg-left{flex:1;min-width:0}.upg-title{font-size:13px;font-weight:800}.upg-desc{font-size:11px;color:#edd0dc;margin-top:2px}.cost{font-size:12px;font-weight:800;color:#ffe49e;white-space:nowrap}.level{font-size:10px;color:#f6c9e1}
+#notice{pointer-events:none;position:absolute;left:16px;right:16px;top:47%;transform:translateY(-50%);z-index:20;text-align:center;font-size:18px;font-weight:900;padding:16px 12px;border-radius:16px;background:#fff0f5f0;color:#5b304b;box-shadow:0 6px 24px #0008;opacity:0;transition:opacity .2s}.show{opacity:1!important}
+@media(max-height:720px){.header{padding-top:6px}.finance>div{padding:5px 9px}.stage{min-height:195px}.shop{flex-basis:29%;min-height:160px}.combo{padding:7px 14px}}
+@media(min-width:600px){body{display:grid;place-items:center;min-height:100dvh}#game{width:440px;height:min(94dvh,940px);border:1px solid #78566f;border-radius:20px}}
+@media(prefers-reduced-motion:reduce){.portrait,.meterfill,.float-text{animation:none;transition:none}}
+</style>
+</head>
+<body>
+<main id="game">
+  <header class="header">
+    <div class="brandline"><div class="brand">8+9 MAID CAFÉ</div><span class="tag">Prototype 0.2</span></div>
+    <div class="finance">
+      <div><div class="small">💰 營業資金</div><div class="big" id="money">NT$ 0</div></div>
+      <div><div class="small">⚙️ 自動收入／秒</div><div class="persec" id="rate">+ 0</div></div>
+    </div>
+  </header>
+  <section class="stage" id="stage" tabindex="0" role="button" aria-label="點擊奶茶，協助接待客人以賺取金錢">
+    <div class="window"></div>
+    <div class="statusbar"><span class="statuspill">🍵 奶茶｜值班中</span><span class="minipill" id="tapvalue">點擊 + NT$ 1</span></div>
+    <img class="portrait" id="portrait" alt="女僕奶茶的互動立繪" draggable="false">
+    <div class="fallback" id="fallback"><div class="fallback-emoji">🍵</div><div class="fallback-name">女僕・奶茶</div><div class="fallback-hint">圖片尚未載入，請確認 assets 資料夾</div></div>
+    <div class="speech" id="speech" aria-live="off">店長，今天也要努力營業喔。</div>
+    <div class="stagehelp">👆 點擊角色・增加營業資金</div>
+  </section>
+  <section class="combo" aria-label="連續點擊能量條">
+    <div class="combotop"><span>🔥 營業熱度（連續點擊）</span><strong id="combo-num">0 / 20</strong></div>
+    <div class="meter"><div class="meterfill" id="meter"></div></div>
+    <div class="combofoot"><span id="combostatus">連點集滿可領取額外獎金！</span><span id="bonustext">獎金 NT$ 60</span></div>
+  </section>
+  <section class="shop" aria-label="升級商店">
+    <div class="shophead"><h2>🛍️ 店長採購清單</h2><button class="tinybutton" id="reset" type="button">重置存檔</button></div>
+    <div class="upgrades" id="upgrades"></div>
+  </section>
+  <div id="notice" role="status" aria-live="polite"></div>
+</main>
+<script>
+'use strict';
+// 將十張立繪命名為 maid_01.png ~ maid_10.png，放進 assets/ 資料夾即可。
+const portraits = Object.fromEntries(Array.from({length:10},(_,i)=>[i+1,`assets/maid_${String(i+1).padStart(2,'0')}.png`]));
+const KEY='maid89_clicker_v01';
+const COMBO_GOAL=20, COMBO_TIMEOUT=1800, OFFLINE_MAX_S=8*3600;
+const upgrades=[
+ {id:'menu',name:'🍰 甜點菜單更新',detail:'自動收入 +NT$ 0.5／秒',initial:25,ratio:1.19,rate:.5,tap:0},
+ {id:'skill',name:'☕ 店長熟練度',detail:'每次點擊 +NT$ 1',initial:80,ratio:1.48,rate:0,tap:1},
+ {id:'seats',name:'🪑 增加座位',detail:'自動收入 +NT$ 2／秒',initial:120,ratio:1.21,rate:2,tap:0},
+ {id:'machine',name:'⚙️ 高級咖啡機',detail:'自動收入 +NT$ 8／秒',initial:550,ratio:1.24,rate:8,tap:0},
+ {id:'ads',name:'📣 社群宣傳',detail:'自動收入 +NT$ 30／秒',initial:2400,ratio:1.28,rate:30,tap:0}
+];
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString('zh-TW',{maximumFractionDigits:n<100?1:0});
+let game={money:0,total:0,levels:{},lastSeen:Date.now(),bonusCount:0};
+try{const raw=JSON.parse(localStorage.getItem(KEY)||'null');if(raw&&typeof raw==='object'&&Number.isFinite(raw.money)&&raw.money>=0){game={...game,...raw,levels:raw.levels||{}};}}catch(e){console.warn('存檔無法讀取',e)}
+for(const u of upgrades){game.levels[u.id]=Math.max(0,Math.min(10000,Number(game.levels[u.id])||0));}
+const income=()=>upgrades.reduce((s,u)=>s+u.rate*game.levels[u.id],0);
+const tapIncome=()=>1+upgrades.reduce((s,u)=>s+u.tap*game.levels[u.id],0);
+const price=u=>Math.ceil(u.initial*Math.pow(u.ratio,game.levels[u.id]));
+const bonus=()=>60+game.bonusCount*10;
+const save=()=>{game.lastSeen=Date.now();try{localStorage.setItem(KEY,JSON.stringify(game));}catch(e){console.warn('無法儲存',e)}};
+const addMoney=amount=>{game.money+=amount;game.total+=amount};
+let combo=0,lastTap=0,portraitTimer=null,noticeTimer=null,shiftTimer=null,activePortrait=1,lastRenderedMoney=-1,lastRenderedRate=-1;
+const img=$('portrait');
+// 在背景預先載入所有表情，避免連擊時頻繁切圖產生閃爍。
+const portraitCache=[];
+for(const [n,src] of Object.entries(portraits)){
+  const preload=new Image();preload.src=src;portraitCache[Number(n)]=preload;
+}
+img.addEventListener('load',()=>{$('fallback').style.display='none';img.style.display='block'});
+img.addEventListener('error',()=>{img.style.display='none';$('fallback').style.display='flex'});
+function setPortrait(n,duration=0){if(!portraits[n])return;clearTimeout(portraitTimer);activePortrait=n;img.style.display='block';img.src=portraits[n];if(duration>0)portraitTimer=setTimeout(()=>setPortrait(income()>0?8:1),duration);}
+function say(text){$('speech').textContent=text}
+function notice(text){$('notice').textContent=text;$('notice').classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('notice').classList.remove('show'),1750)}
+function renderMoney(){const m=Math.floor(game.money*10)/10,r=income();if(m!==lastRenderedMoney){$('money').textContent=`NT$ ${fmt(m)}`;lastRenderedMoney=m}if(r!==lastRenderedRate){$('rate').textContent=`+ ${fmt(r)}`;lastRenderedRate=r}$('tapvalue').textContent=`點擊 + NT$ ${fmt(tapIncome())}`;$('bonustext').textContent=`獎金 NT$ ${fmt(bonus())}`;}
+function renderCombo(){ $('combo-num').textContent=`${combo} / ${COMBO_GOAL}`;$('meter').style.width=`${combo/COMBO_GOAL*100}%`;$('combostatus').textContent=combo>0?'保持連點！停止約 1.8 秒會歸零':'連點集滿可領取額外獎金！';}
+const shopRows=new Map();
+function createShop(){for(const u of upgrades){const b=document.createElement('button');b.type='button';b.className='upgrade';b.addEventListener('click',()=>buy(u));b.innerHTML=`<span class="upg-left"><span class="upg-title"></span><br><span class="upg-desc"></span> <span class="level"></span></span><span class="cost"></span>`;b.querySelector('.upg-title').textContent=u.name;b.querySelector('.upg-desc').textContent=u.detail;$('upgrades').append(b);shopRows.set(u.id,b)}}
+function renderShop(){for(const u of upgrades){const b=shopRows.get(u.id);const p=price(u);b.disabled=game.money+1e-6<p;b.querySelector('.level').textContent=`Lv.${game.levels[u.id]}`;b.querySelector('.cost').textContent=`NT$ ${fmt(p)}`}}
+function render(){renderMoney();renderCombo();renderShop()}
+function buy(u){const p=price(u);if(game.money+1e-6<p)return;game.money=Math.max(0,game.money-p);game.levels[u.id]++;say(u.id==='skill'?'店長，手速變快了耶。':'嗯，這樣工作會比較順利。');setPortrait(u.id==='skill'?4:8,1150);render();save()}
+function floatText(text,x,y){const el=document.createElement('span');el.className='float-text';el.textContent=text;el.style.left=x+'px';el.style.top=y+'px';$('stage').append(el);setTimeout(()=>el.remove(),850)}
+const greetings=['歡迎光臨～','店長，請認真工作。','這次就算你一份功勞吧。'];
+let tapCount=0;
+function tap(ev){if(ev?.cancelable)ev.preventDefault();const now=Date.now();if(lastTap&&now-lastTap>COMBO_TIMEOUT)combo=0;lastTap=now;tapCount++;combo++;addMoney(tapIncome());
+ const box=$('stage').getBoundingClientRect();const x=ev&&typeof ev.clientX==='number'?ev.clientX-box.left:box.width*.52;const y=ev&&typeof ev.clientY==='number'?ev.clientY-box.top:box.height*.6;
+ floatText(`+${fmt(tapIncome())}`,Math.min(Math.max(x,40),box.width-40),Math.min(Math.max(y,45),box.height-60));
+ if(combo>=COMBO_GOAL){const prize=bonus();addMoney(prize);game.bonusCount++;combo=0;lastTap=0;notice(`🎉 營業熱度 MAX！ + NT$ ${fmt(prize)}`);say('做得不錯嘛……店長♡');setPortrait(Math.random()<.5?5:7,1800);save()}
+ else if(combo>=15){say('你也太有精神了吧！');setPortrait(combo%2?3:6,800)}
+ else if(combo>=8){say('等、等一下，有必要這麼急嗎？');setPortrait(3,650)}
+ else if(tapCount%6===0){say(greetings[tapCount/6%greetings.length|0]);setPortrait([2,4,7][tapCount/6%3|0],900)}
+ else if(combo===1){say('收到，交給我吧。');setPortrait(2,500)}
+ img.classList.remove('pulse');void img.offsetWidth;img.classList.add('pulse');render();}
+$('stage').addEventListener('pointerdown',ev=>{if(ev.pointerType==='mouse'&&ev.button!==0)return;tap(ev)});
+$('stage').addEventListener('keydown',ev=>{if(ev.repeat)return;if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();tap(null)}});
+function endCombo(){if(!combo)return;combo=0;lastTap=0;say('……店長，終於肯休息了？');setPortrait(10,1400);renderCombo();}
+let lastTick=performance.now(),lastSave=Date.now();
+function tick(){const now=performance.now();const dt=Math.min((now-lastTick)/1000,5);lastTick=now;if(document.hidden)return;if(income()>0)addMoney(income()*dt);if(combo&&Date.now()-lastTap>COMBO_TIMEOUT)endCombo();renderMoney();renderShop();if(Date.now()-lastSave>5000){save();lastSave=Date.now()}}
+function offline(){const elapsed=Math.max(0,Math.min(OFFLINE_MAX_S,(Date.now()-Number(game.lastSeen))/1000));if(elapsed<10)return;const earned=income()*elapsed*.5;if(earned>0){addMoney(earned);notice(`🌙 離線營業收入 + NT$ ${fmt(earned)}`);say('店長不在的時候，我們也有認真工作喔。')}save()}
+function reset(){if(!confirm('確定要刪除目前的遊戲進度並重新開始嗎？'))return;game={money:0,total:0,levels:{},lastSeen:Date.now(),bonusCount:0};for(const u of upgrades)game.levels[u.id]=0;combo=0;lastTap=0;tapCount=0;save();setPortrait(1);say('歡迎回來，店長。');render();notice('存檔已重置')}
+$('reset').addEventListener('click',reset);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){save()}else{offline();lastTick=performance.now();render()}});
+window.addEventListener('pagehide',save);
+createShop();offline();setPortrait(1);render();setInterval(tick,100);
+// 閒置時偶爾換成端茶立繪，僅在沒有連擊時生效。
+setInterval(()=>{if(document.hidden||combo)return;if(activePortrait===1&&income()>0){setPortrait(8,2400)}},11000);
+</script>
+</body>
+</html>
