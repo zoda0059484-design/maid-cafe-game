@@ -65,7 +65,7 @@ button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid #fff;o
 <script>
 'use strict';
 // 將十張立繪命名為 maid_01.png ~ maid_10.png，放進 assets/ 資料夾即可。
-const portraits = Object.fromEntries(Array.from({length:10},(_,i)=>[i+1,`assets/maid_${String(i+1).padStart(2,'0')}.png`]));
+const portraits = Object.fromEntries(Array.from({length:10},(_,i)=>[i+1,`maid_${String(i+1).padStart(2,'0')}.png`]));
 const KEY='maid89_clicker_v01';
 const COMBO_GOAL=20, COMBO_TIMEOUT=1800, OFFLINE_MAX_S=8*3600;
 const upgrades=[
